@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "allowJs": true,
+    "strict": true,
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "skipLibCheck": true,
+    "typeRoots": ["node_modules/@types"],
+    "sourceMap": false
+  },
+  "ts-node": {
+    "esm": true,
+    "require": ["tsconfig-paths/register"]
+  },
+  "include": ["./lib/**/*", "./examples/**/*"]
+}
