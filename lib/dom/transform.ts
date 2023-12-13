@@ -1,10 +1,13 @@
 import * as A from 'fp-ts/Array'
-import * as NA from 'fp-ts/NonEmptyArray'
 import * as O from 'fp-ts/Option'
 import * as S from 'fp-ts/string'
 import * as Str from 'fp-ts-std/String'
 import { pipe } from 'fp-ts/function'
-import { setAttribute, setAttributeVector } from './attributes.js'
+import {
+  StackSetters,
+  setAttributeList,
+  setAttributeVector,
+} from './attributes.js'
 
 const wrapBrace = (value: string) => {
   return `(${value})`
@@ -56,17 +59,13 @@ export const transformOrigin = <E extends SVGElement>(x: number, y: number) => {
 }
 
 export const transform = <E extends SVGElement>(
-  ...setters: Array<(stack: string[]) => NA.NonEmptyArray<string>>
+  ...setters: StackSetters<string>
 ) => {
-  return pipe(
-    setters,
-    A.reduce(A.of(''), (stack, setter) => {
-      return pipe(stack, setter)
-    }),
-    Str.unwords,
-    S.trim,
-    setAttribute<E>('patternTransform')
-  )
+  return setAttributeList<E>('transform')(...setters)
 }
 
-export const patternTransform = transform
+export const patternTransform = <E extends SVGElement>(
+  ...setters: StackSetters<string>
+) => {
+  return setAttributeList<E>('patternTransform')(...setters)
+}

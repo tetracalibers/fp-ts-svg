@@ -1,6 +1,7 @@
 import * as IO from 'fp-ts/IO'
 import { pipe } from 'fp-ts/function'
 import * as A from 'fp-ts/Array'
+import * as NA from 'fp-ts/NonEmptyArray'
 import * as S from 'fp-ts/string'
 import * as Str from 'fp-ts-std/String'
 import * as F from 'fp-ts-std/Function'
@@ -46,6 +47,21 @@ export const setAttributeNumbers =
         IO.map(() => element)
       )
     }
+  }
+
+export type StackSetters<T> = Array<(stack: T[]) => NA.NonEmptyArray<T>>
+export const setAttributeList =
+  <E extends SVGElement>(name: string) =>
+  (...setters: StackSetters<string>) => {
+    return pipe(
+      setters,
+      A.reduce(A.of(''), (stack, setter) => {
+        return pipe(stack, setter)
+      }),
+      Str.unwords,
+      S.trim,
+      setAttribute<E>(name)
+    )
   }
 
 export const fillColor = <E extends SVGElement>(color: string) => {

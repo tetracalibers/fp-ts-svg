@@ -1,10 +1,8 @@
 import { pipe } from 'fp-ts/function'
 import * as A from 'fp-ts/Array'
-import * as NA from 'fp-ts/NonEmptyArray'
 import * as Arr from 'fp-ts-std/Array'
-import * as S from 'fp-ts/string'
 import * as Str from 'fp-ts-std/String'
-import { setAttribute } from './attributes.js'
+import { StackSetters, setAttributeList } from './attributes.js'
 
 type Point = [number, number]
 type HasPointsElement = SVGPolylineElement | SVGPolygonElement
@@ -19,15 +17,7 @@ export const moveTo = (x: number, y: number) => (stack: string[]) => {
 export const lineTo = moveTo
 
 export const points = <E extends HasPointsElement>(
-  ...setters: Array<(stack: string[]) => NA.NonEmptyArray<string>>
+  ...setters: StackSetters<string>
 ) => {
-  return pipe(
-    setters,
-    A.reduce(A.of(''), (stack, setter) => {
-      return pipe(stack, setter)
-    }),
-    Str.unwords,
-    S.trim,
-    setAttribute<E>('points')
-  )
+  return setAttributeList<E>('points')(...setters)
 }
