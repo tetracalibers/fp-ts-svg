@@ -21,11 +21,17 @@ export const createPolygon = createNS('polygon')
 export const createGroup = createNS('g')
 export const createDefs = createNS('defs')
 
-export const createPattern = (id: string) =>
-  pipe(
-    createNS('pattern'),
-    R.map((element) => {
-      element.setAttribute('id', id)
-      return element
-    })
-  )
+const withAddId =
+  <E extends SVGElement>(element: R.ReaderIO<Document, E>) =>
+  (id: string) => {
+    return pipe(
+      element,
+      R.map((element) => {
+        element.setAttribute('id', id)
+        return element
+      })
+    )
+  }
+
+export const createMarker = withAddId(createNS('marker'))
+export const createPattern = withAddId(createNS('pattern'))

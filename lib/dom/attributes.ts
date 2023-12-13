@@ -100,7 +100,7 @@ export const center = <E extends SVGCircleElement | SVGEllipseElement>(
   return setAttributeNumbers<E>(['cx', 'cy'])([x, y])
 }
 
-type HasViewboxElement = SVGSVGElement | SVGPatternElement
+type HasViewboxElement = SVGSVGElement | SVGPatternElement | SVGMarkerElement
 
 export const viewbox = <E extends HasViewboxElement>(
   x: number,
@@ -146,4 +146,34 @@ export const from = <E extends SVGLineElement>(x: number, y: number) => {
 
 export const to = <E extends SVGLineElement>(x: number, y: number) => {
   return setAttributeNumbers<E>(['x2', 'y2'])([x, y])
+}
+
+export const ref = <E extends SVGMarkerElement>(x: number, y: number) => {
+  return setAttributeNumbers<E>(['refX', 'refY'])([x, y])
+}
+
+export const markerSize = <E extends SVGMarkerElement>(
+  width: number,
+  height: number
+) => {
+  return setAttributeNumbers<E>(['markerWidth', 'markerHeight'])([
+    width,
+    height,
+  ])
+}
+
+export const orient = <E extends SVGMarkerElement>(angle: number) => {
+  return setAttributeNumber<E>('orient')(angle)
+}
+
+export const markerStart = <E extends SVGElement>(id: string) => {
+  return setAttribute<E>('marker-start')(`url(#${id})`)
+}
+
+export const markerMid = <E extends SVGElement>(id: string) => {
+  return setAttribute<E>('marker-mid')(`url(#${id})`)
+}
+
+export const markerEnd = <E extends SVGElement>(id: string) => {
+  return setAttribute<E>('marker-end')(`url(#${id})`)
 }
