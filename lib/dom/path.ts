@@ -25,6 +25,22 @@ export const lineTo = (x: number, y: number) => (stack: string[]) => {
   return pipe(stack, A.append(commandToString('l', x, y)))
 }
 
+export const hLineToAt = (x: number) => (stack: string[]) => {
+  return pipe(stack, A.append(commandToString('H', x)))
+}
+
+export const vLineToAt = (y: number) => (stack: string[]) => {
+  return pipe(stack, A.append(commandToString('V', y)))
+}
+
+export const hLineTo = (x: number) => (stack: string[]) => {
+  return pipe(stack, A.append(commandToString('h', x)))
+}
+
+export const vLineTo = (y: number) => (stack: string[]) => {
+  return pipe(stack, A.append(commandToString('v', y)))
+}
+
 export const close = () => (stack: string[]) => {
   const isPrevRelative = pipe(
     stack,
