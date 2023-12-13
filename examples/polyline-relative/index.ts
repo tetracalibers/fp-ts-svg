@@ -14,7 +14,6 @@ const svg = define(createSvgRoot, viewbox(0, 0, 800, 800))
 
 const polyline = define(
   createPolyline,
-  //points(at(50, 112), at(500, 300), at(50, 400)),
   points(at(50, 112), fromTo(450, 188), fromTo(-450, 100)),
   fill('none'),
   strokeColor('#9970DB'),
