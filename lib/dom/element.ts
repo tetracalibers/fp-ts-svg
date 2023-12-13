@@ -20,6 +20,7 @@ export const createPolyline = createNS('polyline')
 export const createPolygon = createNS('polygon')
 export const createGroup = createNS('g')
 export const createDefs = createNS('defs')
+export const createPath = createNS('path')
 
 const withAddId =
   <E extends SVGElement>(element: R.ReaderIO<Document, E>) =>
