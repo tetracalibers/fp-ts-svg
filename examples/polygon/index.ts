@@ -1,4 +1,4 @@
-import { flow, pipe } from 'fp-ts/function'
+import { pipe } from 'fp-ts/function'
 import { addChild, define } from '../../lib/dom/util.js'
 import {
   fillColor,
@@ -13,7 +13,7 @@ const svg = define(createSvgRoot, viewbox(0, 0, 800, 800))
 
 const polygon = define(
   createPolygon,
-  points(flow(moveTo(50, 112), lineTo(500, 300), lineTo(50, 400))),
+  points(moveTo(50, 112), lineTo(500, 300), lineTo(50, 400)),
   fillColor('#70DB8E'),
   strokeColor('#2EB855'),
   strokeWidth(20)
