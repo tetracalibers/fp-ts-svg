@@ -1,4 +1,5 @@
 import * as R from 'fp-ts/ReaderIO'
+import { pipe } from 'fp-ts/function'
 
 const createNS = <T extends keyof SVGElementTagNameMap>(tagName: T) => {
   return R.asks((document: Document) => {
@@ -17,3 +18,14 @@ export const createRect = createNS('rect')
 export const createLine = createNS('line')
 export const createPolyline = createNS('polyline')
 export const createPolygon = createNS('polygon')
+export const createGroup = createNS('g')
+export const createDefs = createNS('defs')
+
+export const createPattern = (id: string) =>
+  pipe(
+    createNS('pattern'),
+    R.map((element) => {
+      element.setAttribute('id', id)
+      return element
+    })
+  )

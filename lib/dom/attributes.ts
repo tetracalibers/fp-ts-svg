@@ -1,7 +1,9 @@
-import { fromNumber } from 'fp-ts-std/String'
 import * as IO from 'fp-ts/IO'
 import { pipe } from 'fp-ts/function'
-import * as RI from 'fp-ts/ReaderIO'
+import * as A from 'fp-ts/Array'
+import * as S from 'fp-ts/string'
+import * as Str from 'fp-ts-std/String'
+import * as F from 'fp-ts-std/Function'
 
 export const setAttribute =
   <E extends SVGElement>(name: string) =>
@@ -12,10 +14,38 @@ export const setAttribute =
     return element
   }
 
-const setAttributeNumber =
+export const setAttributeNumber =
   <E extends SVGElement>(name: string) =>
   (value: number) => {
-    return setAttribute<E>(name)(fromNumber(value))
+    return setAttribute<E>(name)(Str.fromNumber(value))
+  }
+
+export const setAttributeVector =
+  <E extends SVGElement>(name: string) =>
+  (value: number[]) => {
+    return pipe(
+      value,
+      A.map(Str.fromNumber),
+      Str.unwords,
+      setAttribute<E>(name)
+    )
+  }
+
+export const setAttributeNumbers =
+  <E extends SVGElement>(names: string[]) =>
+  (values: number[]) => {
+    const setters = pipe(
+      A.zip(names, values),
+      A.map(F.uncurry2(setAttributeNumber<E>))
+    )
+    return (element: E) => {
+      return pipe(
+        setters,
+        A.map((setter) => setter(element)),
+        A.sequence(IO.Applicative),
+        IO.map(() => element)
+      )
+    }
   }
 
 export const fillColor = <E extends SVGElement>(color: string) => {
@@ -23,6 +53,10 @@ export const fillColor = <E extends SVGElement>(color: string) => {
 }
 
 export const fill = fillColor
+
+export const fillPattern = <E extends SVGElement>(id: string) => {
+  return setAttribute<E>('fill')(`url(#${id})`)
+}
 
 export const fillOpacity = <E extends SVGElement>(opacity: number) => {
   return setAttributeNumber<E>('fill-opacity')(opacity)
@@ -42,14 +76,19 @@ export const strokeWidth = <E extends SVGElement>(width: number) => {
   return setAttributeNumber<E>('stroke-width')(width)
 }
 
+export const roundX = <E extends SVGRectElement>(rx: number) => {
+  return setAttributeNumber<E>('rx')(rx)
+}
+
+export const roundY = <E extends SVGRectElement>(ry: number) => {
+  return setAttributeNumber<E>('ry')(ry)
+}
+
 export const radiusXY = <E extends SVGEllipseElement>(
   rx: number,
   ry: number
 ) => {
-  return pipe(
-    setAttributeNumber<E>('rx')(rx),
-    RI.flatMapIO(setAttributeNumber<E>('ry')(ry))
-  )
+  return setAttributeNumbers<E>(['rx', 'ry'])([rx, ry])
 }
 
 export const radius = setAttributeNumber<SVGCircleElement>('r')
@@ -58,57 +97,53 @@ export const center = <E extends SVGCircleElement | SVGEllipseElement>(
   x: number,
   y: number
 ) => {
-  return pipe(
-    setAttributeNumber<E>('cx')(x),
-    RI.flatMapIO(setAttributeNumber<E>('cy')(y))
-  )
+  return setAttributeNumbers<E>(['cx', 'cy'])([x, y])
 }
 
-export const viewbox = (
+type HasViewboxElement = SVGSVGElement | SVGPatternElement
+
+export const viewbox = <E extends HasViewboxElement>(
   x: number,
   y: number,
   width: number,
   height: number
 ) => {
-  return setAttribute<SVGSVGElement>('viewBox')(`${x} ${y} ${width} ${height}`)
+  return setAttribute<E>('viewBox')(`${x} ${y} ${width} ${height}`)
 }
 
-export const width = <E extends SVGSVGElement | SVGRectElement>(
-  width: number
-) => {
-  return setAttributeNumber<E>('width')(width)
+export const viewBox = viewbox
+
+type HasSizeElement = SVGSVGElement | SVGRectElement | SVGPatternElement
+
+export const width = <E extends HasSizeElement>(width: number | string) => {
+  return pipe(
+    S.isString(width) ? width : Str.fromNumber(width),
+    setAttribute<E>('width')
+  )
 }
 
-export const height = <E extends SVGSVGElement | SVGRectElement>(
+export const height = <E extends HasSizeElement>(height: number | string) => {
+  return pipe(
+    S.isString(height) ? height : Str.fromNumber(height),
+    setAttribute<E>('height')
+  )
+}
+
+export const size = <E extends HasSizeElement>(
+  width: number,
   height: number
 ) => {
-  return setAttributeNumber<E>('height')(height)
-}
-
-export const size = <E extends SVGSVGElement | SVGRectElement>(
-  _width: number,
-  _height: number
-) => {
-  return pipe(width<E>(_width), RI.flatMapIO(height<E>(_height)))
+  return setAttributeNumbers<E>(['width', 'height'])([width, height])
 }
 
 export const position = <E extends SVGRectElement>(x: number, y: number) => {
-  return pipe(
-    setAttributeNumber<E>('x')(x),
-    RI.flatMapIO(setAttributeNumber<E>('y')(y))
-  )
+  return setAttributeNumbers<E>(['x', 'y'])([x, y])
 }
 
 export const from = <E extends SVGLineElement>(x: number, y: number) => {
-  return pipe(
-    setAttributeNumber<E>('x1')(x),
-    RI.flatMapIO(setAttributeNumber<E>('y1')(y))
-  )
+  return setAttributeNumbers<E>(['x1', 'y1'])([x, y])
 }
 
 export const to = <E extends SVGLineElement>(x: number, y: number) => {
-  return pipe(
-    setAttributeNumber<E>('x2')(x),
-    RI.flatMapIO(setAttributeNumber<E>('y2')(y))
-  )
+  return setAttributeNumbers<E>(['x2', 'y2'])([x, y])
 }
