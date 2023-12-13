@@ -5,8 +5,27 @@ import * as Str from 'fp-ts-std/String'
 import * as O from 'fp-ts/Option'
 import { StackSetters, setAttributeList } from './attributes.js'
 
+type Point = [number, number]
+
+const joinByComma = (list: number[]) => {
+  return pipe(list, A.map(Str.fromNumber), Arr.join(','))
+}
+
 const commandToString = (command: string, ...list: number[]) => {
-  return pipe(list, A.map(Str.fromNumber), Arr.join(','), Str.prepend(command))
+  return pipe(list, joinByComma, Str.prepend(command))
+}
+
+const joinBySpace = (list: string[]) => {
+  return pipe(list, Arr.join(' '))
+}
+
+const listCommandToString = (commandName: string, points: Point[]) => {
+  return pipe(
+    points,
+    A.map((point) => joinByComma(point)),
+    joinBySpace,
+    Str.prepend(commandName)
+  )
 }
 
 export const moveToAt = (x: number, y: number) => (stack: string[]) => {
@@ -24,6 +43,18 @@ export const lineToAt = (x: number, y: number) => (stack: string[]) => {
 export const lineTo = (x: number, y: number) => (stack: string[]) => {
   return pipe(stack, A.append(commandToString('l', x, y)))
 }
+
+export const lineToAtPoints =
+  (...points: Point[]) =>
+  (stack: string[]) => {
+    return pipe(stack, A.append(listCommandToString('L', points)))
+  }
+
+export const lineToPoints =
+  (...points: Point[]) =>
+  (stack: string[]) => {
+    return pipe(stack, A.append(listCommandToString('l', points)))
+  }
 
 export const hLineToAt = (x: number) => (stack: string[]) => {
   return pipe(stack, A.append(commandToString('H', x)))
